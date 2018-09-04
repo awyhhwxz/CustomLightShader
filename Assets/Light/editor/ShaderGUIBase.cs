@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class ShaderGUIBase : ShaderGUI
 {
-
     protected MaterialEditor _editor;
     protected MaterialProperty[] _properties;
 
@@ -44,5 +43,10 @@ public class ShaderGUIBase : ShaderGUI
     {
         var target = _editor.target as Material;
         return target.IsKeywordEnabled(keyword);
+    }
+
+    protected void RecordAction(string labal)
+    {
+        _editor.RegisterPropertyChangeUndo(labal);
     }
 }

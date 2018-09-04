@@ -13,7 +13,7 @@ struct appdata
 
 struct v2f
 {
-	float2 uv : TEXCOORD0;
+	float4 uv : TEXCOORD0;
 	UNITY_FOG_COORDS(1)
 	float3 normal : TEXCOORD2;
 #if defined(BINORMAL_PER_FRAGMENT)
