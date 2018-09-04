@@ -8,13 +8,12 @@ Material:
   m_PrefabInternal: {fileID: 0}
   m_Name: Light
   m_Shader: {fileID: 4800000, guid: fe113da1d384c3549a4f9b7cf13da3ab, type: 3}
-  m_ShaderKeywords: _RENDERING_CUTOFF _RENDERING_CUTOUT
+  m_ShaderKeywords: _RENDERING_CUTOFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2450
-  stringTagMap:
-    RenderType: TransparentCutout
+  m_CustomRenderQueue: 2000
+  stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -79,6 +78,7 @@ Material:
     - _AlphaCutoff: 0.722
     - _BumpScale: 0.93
     - _Cutoff: 0.5
+    - _DestBlend: 0
     - _DetailBumpScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0

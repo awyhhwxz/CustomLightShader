@@ -8,13 +8,13 @@ Material:
   m_PrefabInternal: {fileID: 0}
   m_Name: TransparentMaterial
   m_Shader: {fileID: 4800000, guid: fe113da1d384c3549a4f9b7cf13da3ab, type: 3}
-  m_ShaderKeywords: _RENDERING_CUTOUT
+  m_ShaderKeywords: _RENDERING_TRANSPARENT _SEMITRANSPARENT_SHADOWS
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2450
+  m_CustomRenderQueue: 3000
   stringTagMap:
-    RenderType: TransparentCutout
+    RenderType: Transparent
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -68,10 +68,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _AlphaCutoff: 0.518
+    - _AlphaCutoff: 0.467
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _DestBlend: 0
+    - _DestBlend: 10
     - _DetailBumpScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -87,7 +87,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _ZWrite: 1
+    - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Emission: {r: 0, g: 0, b: 0, a: 1}
