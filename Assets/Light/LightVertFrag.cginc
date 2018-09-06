@@ -53,7 +53,7 @@ float GetSmoothness(v2f i)
 
 float3 GetEmission(v2f i)
 {
-#if defined(FORWARD_BASE_PASS)
+#if defined(FORWARD_BASE_PASS) || defined(DEFERRED_PASS)
 #if defined(_EMISSION_MAP)
 	return tex2D(_EmissionMap, i.uv).rgb * _Emission;
 #else
@@ -87,7 +87,7 @@ v2f vert(appdata v)
 	o.tangent = UnityObjectToWorldDir(v.tangent.xyz);
 	o.binormal = CreateBinormal(v.normal, v.tangent, v.tangent.w);
 #endif
-	UNITY_TRANSFER_FOG(o,o.vertex);
+	UNITY_TRANSFER_FOG(o,o.pos);
 #if defined(VERTEXLIGHT_ON)
 	ComputeVertexLightColor(o.vertexLightColor, o.worldPos, o.normal);
 #endif
@@ -110,7 +110,7 @@ void InitializeFragmentNormal(inout v2f i)
 		+ normal.z * i.normal);
 }
 
-fixed4 frag(v2f i) : SV_Target
+fragment_output frag(v2f i) : SV_Target
 {
 	float alpha = GetAlpha(i);
 #if defined(_RENDERING_CUTOUT)
@@ -142,9 +142,28 @@ fixed4 frag(v2f i) : SV_Target
 	alpha = 1;
 #endif
 	fixed4 finalCol = fixed4(col, alpha);
+
+	fragment_output o;
+#if defined(DEFERRED_PASS)
+	//o.color = float4(0, 0, 0, 1);
+	o.gBuffer0.rgb = albedo;
+	o.gBuffer0.a = 1;
+	o.gBuffer1.rgb = specularTint;
+	o.gBuffer1.a = smoothness;
+	o.gBuffer2 = float4(i.normal * 0.5 + 0.5, 1);
+
+#if !defined(UNITY_HDR_ON)
+	finalCol.rgb = exp2(-finalCol.rgb);
+#endif
+
+	o.gBuffer3 = finalCol;
+#else
 	// apply fog
 	UNITY_APPLY_FOG(i.fogCoord, finalCol);
-	return finalCol;
+	o.color = finalCol;
+#endif
+
+	return o;
 }
 
 #endif

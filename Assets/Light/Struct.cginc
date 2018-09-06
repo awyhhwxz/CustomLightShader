@@ -30,4 +30,16 @@ struct v2f
 	float4 pos : SV_POSITION;
 };
 
+struct fragment_output
+{
+#if defined(DEFERRED_PASS)
+	float4 gBuffer0 : SV_Target0;
+	float4 gBuffer1 : SV_Target1;
+	float4 gBuffer2 : SV_Target2;
+	float4 gBuffer3 : SV_Target3;
+#else
+	float4 color : SV_Target;
+#endif
+};
+
 #endif

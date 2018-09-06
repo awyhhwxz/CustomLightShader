@@ -22,15 +22,19 @@ void ComputeVertexLightColor(inout float3 vertexLightColor, float3 worldPos, flo
 UnityLight CreateLight(v2f i)
 {
 	UnityLight light;
-
-#if defined(POINT) || defined(POINT_COOKIE) || defined(SPOT)
-	light.dir = normalize(_WorldSpaceLightPos0.xyz - i.worldPos);
+#if defined(DEFERRED_PASS)
+	light.dir = float3(0, 1, 0);
+	light.color = 0;
 #else
-	light.dir = _WorldSpaceLightPos0.xyz;
-#endif
+	#if defined(POINT) || defined(POINT_COOKIE) || defined(SPOT)
+		light.dir = normalize(_WorldSpaceLightPos0.xyz - i.worldPos);
+	#else
+		light.dir = _WorldSpaceLightPos0.xyz;
+	#endif
 
 	UNITY_LIGHT_ATTENUATION(attenuation, i, i.worldPos);
 	light.color = _LightColor0.rgb * attenuation;
+#endif
 	light.ndotl = DotClamped(i.normal, light.dir);
 	return light;
 }
@@ -51,6 +55,14 @@ float3 BoxProjection(
 UnityIndirect CreateIndirectLight(v2f i, float3 viewDir, float roughness)
 {
 	UnityIndirect indirectLight;
+	indirectLight.diffuse = 0;
+	indirectLight.specular = 0;
+
+#ifdef VERTEXLIGHT_ON
+	indirectLight.diffuse = i.vertexLightColor;
+#endif
+
+#if defined(FORWARD_BASE_PASS) || defined(DEFERRED_PASS)
 	indirectLight.diffuse = max(0, ShadeSH9(float4(i.normal, 1)));
 	float3 reflectViewDir = reflect(-viewDir, i.normal);
 	Unity_GlossyEnvironmentData envData;
@@ -63,8 +75,10 @@ UnityIndirect CreateIndirectLight(v2f i, float3 viewDir, float roughness)
 	indirectLight.specular = Unity_GlossyEnvironment(UNITY_PASS_TEXCUBE(unity_SpecCube0),
 		unity_SpecCube0_HDR, envData);
 
-#ifdef VERTEXLIGHT_ON
-	indirectLight.diffuse = i.vertexLightColor;
+	#if defined(DEFERRED_PASS) && UNITY_ENABLE_REFLECTION_BUFFERS
+		indirectLight.specular = 0;
+	#endif
+
 #endif
 
 	return indirectLight;

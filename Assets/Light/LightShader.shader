@@ -45,7 +45,7 @@
 			#pragma shader_feature _ _SMOOTHNESS_ALBEDO _SMOOTHNESS_METALLIC
 			#pragma shader_feature _EMISSION_MAP
 			#pragma shader_feature _ _RENDERING_CUTOUT _RENDERING_FADE _RENDERING_TRANSPARENT
-
+			
 			#define FORWARD_BASE_PASS
 			//#define BINORMAL_PER_FRAGMENT
 			#include "LightVertFrag.cginc"
@@ -72,6 +72,31 @@
 			#pragma shader_feature _ _RENDERING_CUTOUT _RENDERING_FADE _RENDERING_TRANSPARENT
 
 			//#define BINORMAL_PER_FRAGMENT			
+			#include "LightVertFrag.cginc"
+
+			ENDCG
+		}
+
+		Pass 
+		{
+			Tags { "LightMode" = "Deferred" }
+
+			CGPROGRAM
+			#pragma target 3.0	
+			#pragma exclude_renderers nomrt
+			#pragma vertex vert
+			#pragma fragment frag
+			// make fog work
+			#pragma multi_compile_fog
+			#pragma multi_compile_fwdbase_fullshadows
+			#pragma multi_compile _ VERTEXLIGHT_ON
+			#pragma shader_feature _ _METALLIC_MAP
+			#pragma shader_feature _ _SMOOTHNESS_ALBEDO _SMOOTHNESS_METALLIC
+			#pragma shader_feature _EMISSION_MAP
+			#pragma shader_feature _ _RENDERING_CUTOUT
+			#pragma shader_feature _ UNITY_HDR_ON
+			
+			#define DEFERRED_PASS
 			#include "LightVertFrag.cginc"
 
 			ENDCG
