@@ -63,7 +63,12 @@ UnityIndirect CreateIndirectLight(v2f i, float3 viewDir, float roughness)
 #endif
 
 #if defined(FORWARD_BASE_PASS) || defined(DEFERRED_PASS)
+
+#if defined(LIGHTMAP_ON)
+	indirectLight.diffuse = DecodeLightmap(UNITY_SAMPLE_TEX2D(unity_Lightmap, i.lightmapUV));
+#else
 	indirectLight.diffuse = max(0, ShadeSH9(float4(i.normal, 1)));
+#endif
 	float3 reflectViewDir = reflect(-viewDir, i.normal);
 	Unity_GlossyEnvironmentData envData;
 	envData.roughness = roughness;

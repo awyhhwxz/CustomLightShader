@@ -7,6 +7,7 @@ struct appdata
 {
 	float4 vertex : POSITION;
 	float2 uv : TEXCOORD0;
+	float2 uv1 : TEXCOORD1;
 	float3 normal : NORMAL;
 	float4 tangent : TANGENT;
 };
@@ -25,6 +26,9 @@ struct v2f
 	float3 worldPos : TEXCOORD5;
 #if defined(VERTEXLIGHT_ON)
 	float3 vertexLightColor : TEXCOORD6;
+#endif
+#if defined(LIGHTMAP_ON)
+	float2 lightmapUV : TEXCOORD6;
 #endif
 	SHADOW_COORDS(7)
 	float4 pos : SV_POSITION;

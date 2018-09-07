@@ -56,14 +56,14 @@ struct shadow_v2f
 sampler2D _MainTex;
 float4 _MainTex_ST;
 
-float4 _Tint;
-float _AlphaCutoff;
+float4 _Color;
+float _Cutoff;
 
 sampler3D _DitherMaskLOD;
 
 float GetAlpha(shadow_v2f i)
 {
-	float alpha = _Tint.a;
+	float alpha = _Color.a;
 #if defined(SHADOWS_NEED_UV)
 	alpha *= tex2D(_MainTex, i.uv).a;
 #endif
@@ -93,7 +93,7 @@ fixed4 ShadowFragShader(shadow_v2f i) : SV_TARGET
 {
 #if defined(_RENDERING_CUTOUT)
 	float alpha = GetAlpha(i);
-	clip(alpha - _AlphaCutoff);
+	clip(alpha - _Cutoff);
 #endif
 
 #if defined(SHADOWS_SEMITRANSPARENT)

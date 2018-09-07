@@ -8,7 +8,7 @@
 sampler2D _MainTex;
 float4 _MainTex_ST;
 
-float4 _Tint;
+float4 _Color;
 
 sampler2D _NormalMap;
 float _BumpScale;
@@ -24,7 +24,7 @@ float3 _Emission;
 float _Smoothness;
 float _Metallic;
 
-float _AlphaCutoff;
+float _Cutoff;
 
 float3 CreateBinormal(float3 normal, float3 tangent, float binormalSign) {
 	return cross(normal, tangent.xyz) *
@@ -66,7 +66,7 @@ float3 GetEmission(v2f i)
 
 float GetAlpha(v2f i)
 {
-	float alpha = _Tint.a;
+	float alpha = _Color.a;
 #if !defined(_SMOOTHNESS_ALBEDO)
 	alpha *= tex2D(_MainTex, i.uv.xy).a;
 #endif
@@ -80,6 +80,9 @@ v2f vert(appdata v)
 	o.worldPos = mul(unity_ObjectToWorld, v.vertex);
 	o.uv.xy = TRANSFORM_TEX(v.uv, _MainTex);
 	o.uv.zw = TRANSFORM_TEX(v.uv, _DetailTex);
+#if defined(LIGHTMAP_ON)
+	o.lightmapUV = v.uv1 * unity_LightmapST.xy + unity_LightmapST.zw;
+#endif
 	o.normal = UnityObjectToWorldNormal(v.normal);
 #if defined(BINORMAL_PER_FRAGMENT)
 	o.tangent = float4(UnityObjectToWorldDir(v.tangent.xyz), v.tangent.w);
@@ -114,14 +117,14 @@ fragment_output frag(v2f i) : SV_Target
 {
 	float alpha = GetAlpha(i);
 #if defined(_RENDERING_CUTOUT)
-	clip(alpha - _AlphaCutoff);
+	clip(alpha - _Cutoff);
 #endif
 
 	InitializeFragmentNormal(i);
 
 	fixed3 viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos);
 
-	fixed3 albedo = tex2D(_MainTex, i.uv.xy).rgb *_Tint;
+	fixed3 albedo = tex2D(_MainTex, i.uv.xy).rgb * _Color;
 	albedo *= tex2D(_DetailTex, i.uv.zw).rgb * unity_ColorSpaceDouble;
 
 	float3 specularTint;

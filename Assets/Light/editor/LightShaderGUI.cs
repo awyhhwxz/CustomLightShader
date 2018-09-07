@@ -141,13 +141,13 @@ public class LightShaderGUI : ShaderGUIBase
     private void DisplayAlbedo()
     {
         var albedoProperty = FindProperty("_MainTex", _properties);
-        var tintProperty = FindProperty("_Tint", _properties);
+        var tintProperty = FindProperty("_Color", _properties);
         _editor.TexturePropertySingleLine(MakeLabel(albedoProperty, "Albedo (RGB) and Transparency (A)"), albedoProperty, tintProperty);
         
         if(_shouldShowAlphaCutoff)
         {
             EditorGUI.indentLevel += 2;
-            var cutoffProperty = FindProperty("_AlphaCutoff", _properties);
+            var cutoffProperty = FindProperty("_Cutoff", _properties);
             _editor.ShaderProperty(cutoffProperty, MakeLabel(cutoffProperty));
             EditorGUI.indentLevel -= 2;
         }

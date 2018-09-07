@@ -3,7 +3,7 @@
 	Properties
 	{
 		_MainTex ("Albedo", 2D) = "white" {}
-		_Tint ("Tint", Color) = (1, 1, 1, 1)
+		_Color ("Tint", Color) = (1, 1, 1, 1)
 		_Smoothness("Smoothness", Range(0,1)) = 1.0
 		[Gamma]_Metallic("Metallic", Range(0,1)) = 1.0
 		[NoScaleOffset]_MetallicMap("Metallic", 2D) = "black" {}
@@ -17,7 +17,7 @@
 		[NoScaleOffset]_EmissionMap("Emission Map", 2D) = "black" {}
 		_Emission("Emission", Color) = (0, 0, 0)
 
-		_AlphaCutoff("Alpha cutoff", Range(0, 1)) = 0.5
+		_Cutoff("Alpha cutoff", Range(0, 1)) = 0.5
 
 		[HideInInspector]_SrcBlend("Src Blend", Float) = 1
 		[HideInInspector]_DestBlend("Dest Blend", Float) = 0
@@ -67,6 +67,7 @@
 			#pragma multi_compile_fog
 			#pragma multi_compile_fwdadd_fullshadows
 
+			#pragma shader_feature _ LIGHTMAP_ON VERTEXLIGHT_ON
 			#pragma shader_feature _ _METALLIC_MAP
 			#pragma shader_feature _ _SMOOTHNESS_ALBEDO _SMOOTHNESS_METALLIC
 			#pragma shader_feature _ _RENDERING_CUTOUT _RENDERING_FADE _RENDERING_TRANSPARENT
@@ -95,6 +96,7 @@
 			#pragma shader_feature _EMISSION_MAP
 			#pragma shader_feature _ _RENDERING_CUTOUT
 			#pragma shader_feature _ UNITY_HDR_ON
+			#pragma shader_feature _ LIGHTMAP_ON
 			
 			#define DEFERRED_PASS
 			#include "LightVertFrag.cginc"
