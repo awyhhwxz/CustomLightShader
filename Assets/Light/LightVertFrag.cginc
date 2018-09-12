@@ -1,6 +1,12 @@
 #ifndef LIGHT_VERT_FRAG
 #define LIGHT_VERT_FRAG
 
+#if defined(LIGHTMAP_ON) && defined(SHADOWS_SCREEN)
+#if defined(LIGHTMAP_SHADOW_MIXING) && !defined(SHADOWS_SHADOWMASK)
+#define SUBTRACTIVE_LIGHTING 1
+#endif
+#endif
+
 #include "UnityCG.cginc"
 #include "Struct.cginc"
 #include "LightInner.cginc"
@@ -29,6 +35,13 @@ float _Cutoff;
 float3 CreateBinormal(float3 normal, float3 tangent, float binormalSign) {
 	return cross(normal, tangent.xyz) *
 		(binormalSign * unity_WorldTransformParams.w);
+}
+
+float3 GetAlbedo(v2f i)
+{
+	float3 albedo = tex2D(_MainTex, i.uv.xy).rgb * _Color;
+	albedo *= tex2D(_DetailTex, i.uv.zw).rgb * unity_ColorSpaceDouble;
+	return albedo;
 }
 
 float GetMetallic(v2f i)
@@ -76,11 +89,12 @@ float GetAlpha(v2f i)
 v2f vert(appdata v)
 {
 	v2f o;
+	UNITY_INITIALIZE_OUTPUT(v2f, o);
 	o.pos = UnityObjectToClipPos(v.vertex);
 	o.worldPos = mul(unity_ObjectToWorld, v.vertex);
 	o.uv.xy = TRANSFORM_TEX(v.uv, _MainTex);
 	o.uv.zw = TRANSFORM_TEX(v.uv, _DetailTex);
-#if defined(LIGHTMAP_ON)
+#if defined(LIGHTMAP_ON) || ADDITIONAL_MASKED_DIRECTIONAL_SHADOWS
 	o.lightmapUV = v.uv1 * unity_LightmapST.xy + unity_LightmapST.zw;
 #endif
 	o.normal = UnityObjectToWorldNormal(v.normal);
@@ -94,7 +108,11 @@ v2f vert(appdata v)
 #if defined(VERTEXLIGHT_ON)
 	ComputeVertexLightColor(o.vertexLightColor, o.worldPos, o.normal);
 #endif
-	TRANSFER_SHADOW(o);
+#if defined(DYNAMICLIGHTMAP_ON)
+	o.dynamicLightmapUV =
+		v.uv2 * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+#endif
+	UNITY_TRANSFER_SHADOW(o, v.uv1);
 	return o;
 }
 
@@ -113,7 +131,7 @@ void InitializeFragmentNormal(inout v2f i)
 		+ normal.z * i.normal);
 }
 
-fragment_output frag(v2f i) : SV_Target
+fragment_output frag(v2f i)
 {
 	float alpha = GetAlpha(i);
 #if defined(_RENDERING_CUTOUT)
@@ -124,8 +142,7 @@ fragment_output frag(v2f i) : SV_Target
 
 	fixed3 viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos);
 
-	fixed3 albedo = tex2D(_MainTex, i.uv.xy).rgb * _Color;
-	albedo *= tex2D(_DetailTex, i.uv.zw).rgb * unity_ColorSpaceDouble;
+	float3 albedo = GetAlbedo(i);
 
 	float3 specularTint;
 	float oneMinusReflectivity;
@@ -160,6 +177,14 @@ fragment_output frag(v2f i) : SV_Target
 #endif
 
 	o.gBuffer3 = finalCol;
+
+	#if defined(SHADOWS_SHADOWMASK) && (UNITY_ALLOWED_MRT_COUNT > 4)
+		float2 shadowUV = 0;
+		#if defined(LIGHTMAP_ON)
+			shadowUV = i.lightmapUV;
+		#endif
+		o.gBuffer4 = UnityGetRawBakedOcclusions(shadowUV, i.worldPos.xyz);
+	#endif
 #else
 	// apply fog
 	UNITY_APPLY_FOG(i.fogCoord, finalCol);

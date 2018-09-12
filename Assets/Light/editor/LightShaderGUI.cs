@@ -221,9 +221,16 @@ public class LightShaderGUI : ShaderGUIBase
             , emissionProperty
             , false);
 
+        _editor.LightmapEmissionProperty(2);
         if(EditorGUI.EndChangeCheck())
         {
             SetKeyword("_EMISSION_MAP", emissionMapProperty.textureValue);
+
+            foreach (Material m in _editor.targets)
+            {
+                m.globalIlluminationFlags &=
+                    ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+            }
         }
     }
 

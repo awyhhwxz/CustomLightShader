@@ -10,7 +10,7 @@
 		[NoScaleOffset]_NormalMap("Normal Normals", 2D) = "bump" {}
 		_BumpScale("Bump Scale", Float) = 1.0
 
-		_DetailTex("Detail Albedo", 2D) = "gray" {}
+		_DetailTex("Detail Albedo", 2D) = "while" {}
 		[NoScaleOffset]_DetailNormalMap("Detail Normals", 2D) = "bump" {}
 		_DetailBumpScale("Detail Bump Scale", Float) = 1.0
 
@@ -40,7 +40,8 @@
 			// make fog work
 			#pragma multi_compile_fog
 			#pragma multi_compile_fwdbase_fullshadows
-			#pragma multi_compile _ VERTEXLIGHT_ON
+			#pragma multi_compile_fwdbase
+
 			#pragma shader_feature _ _METALLIC_MAP
 			#pragma shader_feature _ _SMOOTHNESS_ALBEDO _SMOOTHNESS_METALLIC
 			#pragma shader_feature _EMISSION_MAP
@@ -80,6 +81,26 @@
 
 		Pass 
 		{
+			Tags { "LightMode" = "Meta" }
+
+			Cull Off
+
+			CGPROGRAM
+			#pragma target 3.0
+
+			#pragma vertex LightmappingVert
+			#pragma fragment LightmappingFrag
+
+			#pragma shader_feature _ _METALLIC_MAP
+			#pragma shader_feature _ _SMOOTHNESS_ALBEDO _SMOOTHNESS_METALLIC
+			#pragma shader_feature _EMISSION_MAP
+
+			#include "LightmappingInner.cginc"
+			ENDCG
+		}
+
+		Pass 
+		{
 			Tags { "LightMode" = "Deferred" }
 
 			CGPROGRAM
@@ -90,13 +111,13 @@
 			// make fog work
 			#pragma multi_compile_fog
 			#pragma multi_compile_fwdbase_fullshadows
+			#pragma multi_compile_prepassfinal
 			#pragma multi_compile _ VERTEXLIGHT_ON
 			#pragma shader_feature _ _METALLIC_MAP
 			#pragma shader_feature _ _SMOOTHNESS_ALBEDO _SMOOTHNESS_METALLIC
 			#pragma shader_feature _EMISSION_MAP
 			#pragma shader_feature _ _RENDERING_CUTOUT
 			#pragma shader_feature _ UNITY_HDR_ON
-			#pragma shader_feature _ LIGHTMAP_ON
 			
 			#define DEFERRED_PASS
 			#include "LightVertFrag.cginc"
